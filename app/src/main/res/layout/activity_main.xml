@@ -549,15 +549,15 @@
                     android:layout_height="match_parent">
 
 
-                    <EditText
-                        android:id="@+id/editText"
+                    <TextView
+                        android:id="@+id/expressiontxt"
                         android:layout_width="match_parent"
                         android:layout_height="90dp"
-                        android:background="@drawable/input_bg"
                         android:fontFamily="sans-serif-condensed"
-                        android:hint="0"
                         android:paddingRight="10dp"
-                        android:textAlignment="textEnd"
+                        android:text="0"
+                        android:paddingTop="26dp"
+                         android:gravity="end"
                         android:textColor="@color/black"
                         android:textFontWeight="350"
                         android:textSize="29sp"
@@ -574,14 +574,14 @@
                         android:fontFamily="sans-serif-condensed"
                         android:paddingRight="10dp"
                         android:text="0"
-                        android:paddingTop="6dp"
-                        android:textAlignment="textEnd"
+                        android:paddingTop="36dp"
+                        android:gravity="end"
                         android:textFontWeight="350"
                         android:textSize="39sp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/editText" />
+                        app:layout_constraintTop_toBottomOf="@+id/expressiontxt" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
 
