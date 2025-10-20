@@ -1,32 +1,29 @@
 package collotech.example.calculator
 
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import collotech.example.calculator.databinding.ActivityMainBinding
 import net.objecthunter.exp4j.ExpressionBuilder
 
 class MainActivity : AppCompatActivity() {
 
-    // ViewBinding variable
     private lateinit var binding: ActivityMainBinding
-
-    // To store input expression
     private var expression: String = ""
+    private var resultShown: Boolean = false
+    private var isClearMode: Boolean = false // Tracks if DEL is now CLR
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initialize all listeners
         setNumberClickListeners()
         setOperatorClickListeners()
         setEqualAndDeleteListeners()
     }
 
-    /** -------------------------------
-     *  HANDLE NUMBERS AND DOT BUTTONS
-     *  ------------------------------- */
     private fun setNumberClickListeners() {
         val numberButtons = listOf(
             binding.num0, binding.num1, binding.num2, binding.num3,
@@ -34,82 +31,107 @@ class MainActivity : AppCompatActivity() {
             binding.num7, binding.num8, binding.num9, binding.dot
         )
 
-        numberButtons.forEach { textView ->
-            textView.setOnClickListener {
-                expression += textView.text.toString()
+        numberButtons.forEach { btn ->
+            btn.setOnClickListener {
+                if (resultShown) {
+                    expression = ""
+                    binding.output.text = ""
+                    resultShown = false
+                    resetDelButton()
+                }
+
+                expression += btn.text.toString()
                 binding.expressiontxt.setText(expression)
-                evaluateExpressionLive()
+
+                try {
+                    val result = ExpressionBuilder(expression).build().evaluate()
+                    binding.output.text = result.toString()
+                } catch (e: Exception) {
+                    binding.output.text = ""
+                }
             }
         }
     }
 
-    /** -------------------------------
-     *  HANDLE OPERATORS (+, -, *, /)
-     *  ------------------------------- */
     private fun setOperatorClickListeners() {
         val operatorButtons = listOf(
             binding.addition, binding.subtract,
             binding.multiple, binding.divide
         )
 
-        operatorButtons.forEach { textView ->
-            textView.setOnClickListener {
+        operatorButtons.forEach { btn ->
+            btn.setOnClickListener {
                 if (expression.isNotEmpty() && !isLastCharOperator()) {
-                    expression += textView.text.toString()
+                    resultShown = false
+                    resetDelButton()
+                    expression += btn.text.toString()
                     binding.expressiontxt.setText(expression)
                 }
             }
         }
     }
 
-    /** -------------------------------
-     *  HANDLE = AND DEL BUTTONS
-     *  ------------------------------- */
     private fun setEqualAndDeleteListeners() {
-        // Equals (=)
         binding.equal.setOnClickListener {
-            evaluateExpressionLive(final = true)
-        }
-
-        // Delete (DEL)
-        binding.del.setOnClickListener {
-            if (expression.isNotEmpty()) {
-                expression = expression.dropLast(1)
-                binding.expressiontxt.setText(expression)
-                evaluateExpressionLive()
-            }
-        }
-    }
-
-    /** -------------------------------
-     *  LIVE EVALUATION FUNCTION
-     *  ------------------------------- */
-    private fun evaluateExpressionLive(final: Boolean = false) {
-        try {
-            // Avoid evaluation on incomplete expressions
-            if (expression.isNotEmpty() && !isLastCharOperator()) {
+            try {
                 val result = ExpressionBuilder(expression).build().evaluate()
+                val resultString = result.toString()
 
-                // Show as real-time result or final output
-                if (final) {
-                    binding.output.text = result.toString()
-                } else {
-                    // Real-time preview (without pressing =)
-                    binding.output.text = result.toString()
-                }
-            } else if (final) {
-                // Pressed "=" on invalid expression
+                // Animate result upward
+                binding.output.animate()
+                    .alpha(0f)
+                    .translationY(-50f)
+                    .setDuration(250)
+                    .withEndAction {
+                        binding.expressiontxt.setText(resultString)
+                        binding.output.text = ""
+                        binding.output.alpha = 1f
+                        binding.output.translationY = 0f
+                        expression = resultString
+                        resultShown = true
+
+                        // Change DEL to CLR after showing result
+                        binding.del.text = "CLR"
+                        isClearMode = true
+                    }
+                    .start()
+
+            } catch (e: Exception) {
                 binding.output.text = "Error"
             }
-        } catch (e: Exception) {
-            if (final) binding.output.text = "Error"
-            else binding.output.text = ""
+        }
+
+        binding.del.setOnClickListener {
+            if (isClearMode) {
+                // 🧹 Clear everything
+                expression = ""
+                binding.expressiontxt.setText("")
+                binding.output.text = ""
+                resultShown = false
+                resetDelButton()
+            } else {
+                //  Normal DEL behavior
+                if (expression.isNotEmpty()) {
+                    expression = expression.dropLast(1)
+                    binding.expressiontxt.setText(expression)
+
+                    try {
+                        val result = ExpressionBuilder(expression).build().evaluate()
+                        binding.output.text = result.toString()
+                    } catch (e: Exception) {
+                        binding.output.text = ""
+                    }
+                }
+            }
         }
     }
 
-    /** -------------------------------
-     *  HELPER FUNCTION
-     *  ------------------------------- */
+    // Restore DEL button state
+    private fun resetDelButton() {
+        binding.del.text = "DEL"
+        isClearMode = false
+    }
+
     private fun isLastCharOperator(): Boolean {
         if (expression.isEmpty()) return false
         val lastChar = expression.last()
