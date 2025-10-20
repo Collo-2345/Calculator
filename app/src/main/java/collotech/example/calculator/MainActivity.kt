@@ -1,10 +1,14 @@
 package collotech.example.calculator
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import collotech.example.calculator.databinding.ActivityMainBinding
 import net.objecthunter.exp4j.ExpressionBuilder
+
+import android.widget.ImageView
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,6 +26,13 @@ class MainActivity : AppCompatActivity() {
         setNumberClickListeners()
         setOperatorClickListeners()
         setEqualAndDeleteListeners()
+
+        val arrow = findViewById<ImageView>(R.id.arrow)
+
+        arrow.setOnClickListener {
+            val intent = Intent(this, scientific::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun setNumberClickListeners() {
