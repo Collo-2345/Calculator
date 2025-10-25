@@ -1,6 +1,7 @@
 package collotech.example.calculator
 
-import android.content.Intent
+
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.widget.HorizontalScrollView
 import androidx.activity.enableEdgeToEdge
@@ -38,6 +39,7 @@ class scientific : AppCompatActivity() {
         setupListeners()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setupListeners() {
         // Numbers and dot
         val numberButtons = listOf(
@@ -102,6 +104,7 @@ class scientific : AppCompatActivity() {
         showToast(modeMessage)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun updateModeDisplay() {
         when (angleMode) {
             "NONE" -> {
@@ -119,6 +122,7 @@ class scientific : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setupOperators() {
         val operators = mapOf(
             binding.addBtn to "+",
@@ -173,6 +177,7 @@ class scientific : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setupScientificFunctions() {
         // Trigonometric functions
         binding.sinBtn.setOnClickListener {
@@ -317,6 +322,7 @@ class scientific : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setupSpecialFunctions() {
         // Modulo
         binding.modBtn.setOnClickListener {
@@ -388,6 +394,7 @@ class scientific : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setupControlButtons() {
         // Equal button
         binding.equal.setOnClickListener {
@@ -463,7 +470,7 @@ class scientific : AppCompatActivity() {
                     scrollToRight(R.id.outputScrollView)
                 }
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             binding.output.text = ""
         }
     }
@@ -595,6 +602,7 @@ class scientific : AppCompatActivity() {
         return expr
     }
 
+    @SuppressLint("DefaultLocale")
     private fun formatResult(result: Double): String {
         return when {
             result == result.toLong().toDouble() -> result.toLong().toString()
