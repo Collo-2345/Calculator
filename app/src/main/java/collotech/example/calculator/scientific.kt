@@ -16,7 +16,7 @@ class scientific : AppCompatActivity() {
     private lateinit var binding: ActivityScientificBinding
     private var expression = ""
     private var resultShown = false
-    private var angleMode = "RAD" // RAD or DEG
+    private var angleMode = "NONE" // NONE, RAD, or DEG
     private var lastAnswer = "0"
     private var isInverse = false
 
@@ -251,7 +251,7 @@ class scientific : AppCompatActivity() {
                             binding.output.translationY = 0f
                             expression = resultString
                             resultShown = true
-                            binding.delBtn.text = "CE"
+                            binding.delBtn.text = "AC"
                         }
                         .start()
                 }
@@ -263,14 +263,14 @@ class scientific : AppCompatActivity() {
 
         // DEL / CE button
         binding.delBtn.setOnClickListener {
-            if (binding.delBtn.text == "CE") {
+            if (binding.delBtn.text == "AC") {
                 // Clear everything
                 expression = ""
                 binding.expressiontxt.text = ""
                 binding.output.text = ""
                 binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
                 resultShown = false
-                binding.delBtn.text = "CE"
+                binding.delBtn.text = "DEL"
             } else {
                 // Delete last character
                 if (expression.isNotEmpty()) {
