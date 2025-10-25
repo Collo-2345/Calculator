@@ -6,16 +6,16 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import collotech.example.calculator.databinding.ActivityMainBinding
 import net.objecthunter.exp4j.ExpressionBuilder
-
 import android.widget.ImageView
-
+import android.text.method.ScrollingMovementMethod
+import android.widget.TextView
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private var expression: String = ""
     private var resultShown: Boolean = false
-    private var isClearMode: Boolean = false // Tracks if DEL is now CLR
+    private var isClearMode: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,16 +23,27 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // ensure both TextViews support scrolling
+        setupScrollableTextView(binding.expressiontxt)
+        setupScrollableTextView(binding.output)
+
         setNumberClickListeners()
         setOperatorClickListeners()
         setEqualAndDeleteListeners()
 
         val arrow = findViewById<ImageView>(R.id.arrow)
-
         arrow.setOnClickListener {
             val intent = Intent(this, scientific::class.java)
             startActivity(intent)
         }
+    }
+
+    private fun setupScrollableTextView(tv: TextView) {
+        tv.isHorizontalScrollBarEnabled = true
+        tv.movementMethod = ScrollingMovementMethod()
+        tv.setHorizontallyScrolling(true)
+        tv.isSingleLine = true
+        tv.isSelected = true
     }
 
     private fun setNumberClickListeners() {
@@ -52,22 +63,14 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 expression += btn.text.toString()
-                binding.expressiontxt.setText(expression)
-
-                try {
-                    val result = ExpressionBuilder(expression).build().evaluate()
-                    binding.output.text = result.toString()
-                } catch (e: Exception) {
-                    binding.output.text = ""
-                }
+                updateExpressionView()
             }
         }
     }
 
     private fun setOperatorClickListeners() {
         val operatorButtons = listOf(
-            binding.addition, binding.subtract,
-            binding.multiple, binding.divide
+            binding.addition, binding.multiple, binding.divide
         )
 
         operatorButtons.forEach { btn ->
@@ -76,37 +79,46 @@ class MainActivity : AppCompatActivity() {
                     resultShown = false
                     resetDelButton()
                     expression += btn.text.toString()
-                    binding.expressiontxt.setText(expression)
+                    updateExpressionView()
                 }
             }
+        }
+
+        // subtraction with negative support
+        binding.subtract.setOnClickListener {
+            if (expression.isEmpty() || isLastCharOperator()) {
+                expression += "-" // allow negative number
+            } else {
+                expression += "-" // subtraction
+            }
+            updateExpressionView()
         }
     }
 
     private fun setEqualAndDeleteListeners() {
         binding.equal.setOnClickListener {
             try {
-                val result = ExpressionBuilder(expression).build().evaluate()
+                val sanitized = expression.replace("--", "+")
+                val result = ExpressionBuilder(sanitized).build().evaluate()
                 val resultString = result.toString()
 
-                // Animate result upward
                 binding.output.animate()
                     .alpha(0f)
                     .translationY(-50f)
                     .setDuration(250)
                     .withEndAction {
-                        binding.expressiontxt.setText(resultString)
+                        expression = resultString
+                        binding.expressiontxt.text = resultString
+                        adjustTextSize(binding.expressiontxt)
+                        scrollToEnd(binding.expressiontxt)
                         binding.output.text = ""
                         binding.output.alpha = 1f
                         binding.output.translationY = 0f
-                        expression = resultString
                         resultShown = true
-
-                        // Change DEL to CLR after showing result
                         binding.del.text = "CLR"
                         isClearMode = true
                     }
                     .start()
-
             } catch (e: Exception) {
                 binding.output.text = "Error"
             }
@@ -114,30 +126,35 @@ class MainActivity : AppCompatActivity() {
 
         binding.del.setOnClickListener {
             if (isClearMode) {
-                // 🧹 Clear everything
                 expression = ""
-                binding.expressiontxt.setText("")
+                binding.expressiontxt.text = ""
                 binding.output.text = ""
                 resultShown = false
                 resetDelButton()
             } else {
-                //  Normal DEL behavior
                 if (expression.isNotEmpty()) {
                     expression = expression.dropLast(1)
-                    binding.expressiontxt.setText(expression)
-
-                    try {
-                        val result = ExpressionBuilder(expression).build().evaluate()
-                        binding.output.text = result.toString()
-                    } catch (e: Exception) {
-                        binding.output.text = ""
-                    }
+                    updateExpressionView()
                 }
             }
         }
     }
 
-    // Restore DEL button state
+    private fun updateExpressionView() {
+        binding.expressiontxt.text = expression
+        adjustTextSize(binding.expressiontxt)
+        scrollToEnd(binding.expressiontxt)
+
+        try {
+            val result = ExpressionBuilder(expression).build().evaluate()
+            binding.output.text = result.toString()
+            adjustTextSize(binding.output)
+            scrollToEnd(binding.output)
+        } catch (e: Exception) {
+            binding.output.text = ""
+        }
+    }
+
     private fun resetDelButton() {
         binding.del.text = "DEL"
         isClearMode = false
@@ -145,7 +162,27 @@ class MainActivity : AppCompatActivity() {
 
     private fun isLastCharOperator(): Boolean {
         if (expression.isEmpty()) return false
-        val lastChar = expression.last()
-        return lastChar == '+' || lastChar == '-' || lastChar == '*' || lastChar == '/'
+        val last = expression.last()
+        return last == '+' || last == '-' || last == '*' || last == '/'
+    }
+
+    private fun adjustTextSize(tv: TextView) {
+        val length = tv.text.length
+        val scale = when {
+            length < 10 -> 1.0f
+            length < 15 -> 0.9f
+            length < 20 -> 0.8f
+            length < 25 -> 0.7f
+            length < 30 -> 0.6f
+            else -> 0.5f
+        }
+        tv.textScaleX = scale
+    }
+
+    private fun scrollToEnd(tv: TextView) {
+        tv.post {
+            val scrollX = (tv.layout?.getLineWidth(0) ?: 0f).toInt()
+            tv.scrollTo(scrollX, 0)
+        }
     }
 }
