@@ -277,6 +277,17 @@ class scientific : AppCompatActivity() {
             expression += "^"
             updateExpression()
         }
+        // Square (X²)
+        binding.squareBtn.setOnClickListener {
+            if (resultShown) {
+                resultShown = false
+                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.delBtn.text = "DEL"
+            }
+            expression += "^2"
+            updateExpression()
+            autoEvaluate()
+        }
 
         // Constants
         binding.piBtn.setOnClickListener {
