@@ -2,13 +2,13 @@ package collotech.example.calculator
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.HorizontalScrollView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import collotech.example.calculator.databinding.ActivityMainBinding
 import net.objecthunter.exp4j.ExpressionBuilder
 import android.widget.ImageView
-import android.text.method.ScrollingMovementMethod
-import android.widget.TextView
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,27 +23,20 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // ensure both TextViews support scrolling
-        setupScrollableTextView(binding.expressiontxt)
-        setupScrollableTextView(binding.output)
+        // Set text colors explicitly to ensure visibility
+        binding.expressiontxt.setTextColor(resources.getColor(android.R.color.black, null))
+        binding.output.setTextColor(resources.getColor(android.R.color.black, null))
 
         setNumberClickListeners()
         setOperatorClickListeners()
         setEqualAndDeleteListeners()
 
         val arrow = findViewById<ImageView>(R.id.arrow)
+
         arrow.setOnClickListener {
             val intent = Intent(this, scientific::class.java)
             startActivity(intent)
         }
-    }
-
-    private fun setupScrollableTextView(tv: TextView) {
-        tv.isHorizontalScrollBarEnabled = true
-        tv.movementMethod = ScrollingMovementMethod()
-        tv.setHorizontallyScrolling(true)
-        tv.isSingleLine = true
-        tv.isSelected = true
     }
 
     private fun setNumberClickListeners() {
@@ -57,104 +50,123 @@ class MainActivity : AppCompatActivity() {
             btn.setOnClickListener {
                 if (resultShown) {
                     expression = ""
-                    binding.output.text = ""
+                    binding.output.setText("")
                     resultShown = false
                     resetDelButton()
                 }
 
                 expression += btn.text.toString()
-                updateExpressionView()
+                binding.expressiontxt.setText(expression)
+                scrollToRight(R.id.expressionScrollView)
+
+                try {
+                    val result = ExpressionBuilder(preprocessExpression(expression)).build().evaluate()
+                    binding.output.setText(formatResult(result))
+                    scrollToRight(R.id.outputScrollView)
+                } catch (e: Exception) {
+                    binding.output.setText("")
+                }
             }
         }
     }
 
     private fun setOperatorClickListeners() {
         val operatorButtons = listOf(
-            binding.addition, binding.multiple, binding.divide
+            binding.addition, binding.subtract,
+            binding.multiple, binding.divide
         )
 
         operatorButtons.forEach { btn ->
             btn.setOnClickListener {
-                if (expression.isNotEmpty() && !isLastCharOperator()) {
-                    resultShown = false
-                    resetDelButton()
-                    expression += btn.text.toString()
-                    updateExpressionView()
+                val operator = btn.text.toString()
+
+                // Allow minus at the start for negative numbers
+                if (expression.isEmpty() && operator == "-") {
+                    expression = operator
+                    binding.expressiontxt.setText(expression)
+                    scrollToRight(R.id.expressionScrollView)
+                    return@setOnClickListener
+                }
+
+                // Allow minus after an operator for negative numbers (e.g., "5+-2")
+                if (expression.isNotEmpty()) {
+                    if (operator == "-" && isLastCharOperator() && expression.last() != '-') {
+                        resultShown = false
+                        resetDelButton()
+                        expression += operator
+                        binding.expressiontxt.setText(expression)
+                        scrollToRight(R.id.expressionScrollView)
+                    } else if (!isLastCharOperator()) {
+                        resultShown = false
+                        resetDelButton()
+                        expression += operator
+                        binding.expressiontxt.setText(expression)
+                        scrollToRight(R.id.expressionScrollView)
+                    }
                 }
             }
-        }
-
-        // subtraction with negative support
-        binding.subtract.setOnClickListener {
-            if (expression.isEmpty() || isLastCharOperator()) {
-                expression += "-" // allow negative number
-            } else {
-                expression += "-" // subtraction
-            }
-            updateExpressionView()
         }
     }
 
     private fun setEqualAndDeleteListeners() {
         binding.equal.setOnClickListener {
             try {
-                val sanitized = expression.replace("--", "+")
-                val result = ExpressionBuilder(sanitized).build().evaluate()
-                val resultString = result.toString()
+                val result = ExpressionBuilder(preprocessExpression(expression)).build().evaluate()
+                val resultString = formatResult(result)
 
+                // Animate result upward
                 binding.output.animate()
                     .alpha(0f)
                     .translationY(-50f)
                     .setDuration(250)
                     .withEndAction {
-                        expression = resultString
-                        binding.expressiontxt.text = resultString
-                        adjustTextSize(binding.expressiontxt)
-                        scrollToEnd(binding.expressiontxt)
-                        binding.output.text = ""
+                        binding.expressiontxt.setText(resultString)
+                        scrollToRight(R.id.expressionScrollView)
+                        binding.output.setText("")
                         binding.output.alpha = 1f
                         binding.output.translationY = 0f
+                        expression = resultString
                         resultShown = true
+
+                        // Change DEL to CLR after showing result
                         binding.del.text = "CLR"
                         isClearMode = true
                     }
                     .start()
+
             } catch (e: Exception) {
-                binding.output.text = "Error"
+                binding.output.setText("Error")
             }
         }
 
         binding.del.setOnClickListener {
             if (isClearMode) {
+                // 🧹 Clear everything
                 expression = ""
-                binding.expressiontxt.text = ""
-                binding.output.text = ""
+                binding.expressiontxt.setText("")
+                binding.output.setText("")
                 resultShown = false
                 resetDelButton()
             } else {
+                //  Normal DEL behavior
                 if (expression.isNotEmpty()) {
                     expression = expression.dropLast(1)
-                    updateExpressionView()
+                    binding.expressiontxt.setText(expression)
+                    scrollToRight(R.id.expressionScrollView)
+
+                    try {
+                        val result = ExpressionBuilder(preprocessExpression(expression)).build().evaluate()
+                        binding.output.setText(formatResult(result))
+                        scrollToRight(R.id.outputScrollView)
+                    } catch (e: Exception) {
+                        binding.output.setText("")
+                    }
                 }
             }
         }
     }
 
-    private fun updateExpressionView() {
-        binding.expressiontxt.text = expression
-        adjustTextSize(binding.expressiontxt)
-        scrollToEnd(binding.expressiontxt)
-
-        try {
-            val result = ExpressionBuilder(expression).build().evaluate()
-            binding.output.text = result.toString()
-            adjustTextSize(binding.output)
-            scrollToEnd(binding.output)
-        } catch (e: Exception) {
-            binding.output.text = ""
-        }
-    }
-
+    // Restore DEL button state
     private fun resetDelButton() {
         binding.del.text = "DEL"
         isClearMode = false
@@ -162,27 +174,44 @@ class MainActivity : AppCompatActivity() {
 
     private fun isLastCharOperator(): Boolean {
         if (expression.isEmpty()) return false
-        val last = expression.last()
-        return last == '+' || last == '-' || last == '*' || last == '/'
+        val lastChar = expression.last()
+        return lastChar == '+' || lastChar == '-' || lastChar == '*' || lastChar == '/'
     }
 
-    private fun adjustTextSize(tv: TextView) {
-        val length = tv.text.length
-        val scale = when {
-            length < 10 -> 1.0f
-            length < 15 -> 0.9f
-            length < 20 -> 0.8f
-            length < 25 -> 0.7f
-            length < 30 -> 0.6f
-            else -> 0.5f
+    // Preprocess expression to handle negative numbers properly
+    private fun preprocessExpression(expr: String): String {
+        if (expr.isEmpty()) return expr
+
+        var processed = expr
+
+        // Handle negative number at the start: -5 becomes (0-5)
+        if (processed.startsWith("-")) {
+            processed = "(0$processed)"
         }
-        tv.textScaleX = scale
+
+        // Handle negative numbers after operators: 5+-2 becomes 5+(0-2)
+        processed = processed.replace("+-", "+(0-")
+        processed = processed.replace("--", "-(0-")
+        processed = processed.replace("*-", "*(0-")
+        processed = processed.replace("/-", "/(0-")
+
+        return processed
     }
 
-    private fun scrollToEnd(tv: TextView) {
-        tv.post {
-            val scrollX = (tv.layout?.getLineWidth(0) ?: 0f).toInt()
-            tv.scrollTo(scrollX, 0)
+    // Format result to remove unnecessary decimal zeros
+    private fun formatResult(result: Double): String {
+        return if (result == result.toLong().toDouble()) {
+            result.toLong().toString()
+        } else {
+            result.toString()
         }
+    }
+
+    // Scroll HorizontalScrollView to the right to show latest digits
+    private fun scrollToRight(scrollViewId: Int) {
+        val scrollView = findViewById<HorizontalScrollView>(scrollViewId)
+        scrollView?.postDelayed({
+            scrollView.fullScroll(android.view.View.FOCUS_RIGHT)
+        }, 100)
     }
 }
