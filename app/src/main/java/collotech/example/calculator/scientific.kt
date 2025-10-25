@@ -16,7 +16,7 @@ class scientific : AppCompatActivity() {
     private lateinit var binding: ActivityScientificBinding
     private var expression = ""
     private var resultShown = false
-    private var angleMode = "NONE" // NONE, RAD, or DEG
+    private var angleMode = "NONE" // Start with NONE (basic mode), then RAD, then DEG
     private var lastAnswer = "0"
     private var isInverse = false
 
@@ -32,6 +32,9 @@ class scientific : AppCompatActivity() {
             insets
         }
 
+        // Initialize mode display
+        updateModeDisplay()
+
         setupListeners()
     }
 
@@ -45,10 +48,12 @@ class scientific : AppCompatActivity() {
         numberButtons.forEach { btn ->
             btn.setOnClickListener {
                 if (resultShown) {
+                    // Clear and start fresh when entering a number after result
                     expression = ""
                     binding.output.text = ""
                     resultShown = false
                     binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                    binding.delBtn.text = "DEL"
                 }
                 expression += btn.text.toString()
                 updateExpression()
@@ -72,6 +77,46 @@ class scientific : AppCompatActivity() {
         binding.backBtn.setOnClickListener {
             finish()
         }
+
+        // Mode toggle (RAD/DEG)
+        binding.mode.setOnClickListener {
+            toggleAngleMode()
+        }
+    }
+
+    private fun toggleAngleMode() {
+        angleMode = when (angleMode) {
+            "NONE" -> "RAD"
+            "RAD" -> "DEG"
+            "DEG" -> "NONE"
+            else -> "NONE"
+        }
+        updateModeDisplay()
+
+        val modeMessage = when (angleMode) {
+            "NONE" -> "Mode: Basic (No angle conversion)"
+            "RAD" -> "Mode: Radians"
+            "DEG" -> "Mode: Degrees"
+            else -> "Mode: Basic"
+        }
+        showToast(modeMessage)
+    }
+
+    private fun updateModeDisplay() {
+        when (angleMode) {
+            "NONE" -> {
+                binding.mode.text = "Mode"
+                binding.mode.setTextColor(resources.getColor(android.R.color.white, null))
+            }
+            "RAD" -> {
+                binding.mode.text = "RAD"
+                binding.mode.setTextColor(resources.getColor(android.R.color.holo_green_dark, null))
+            }
+            "DEG" -> {
+                binding.mode.text = "DEG"
+                binding.mode.setTextColor(resources.getColor(android.R.color.holo_red_dark, null))
+            }
+        }
     }
 
     private fun setupOperators() {
@@ -87,6 +132,13 @@ class scientific : AppCompatActivity() {
                 if (expression.isEmpty() && op == "-") {
                     expression = op
                 } else if (expression.isNotEmpty()) {
+                    // Allow continuing with result after equals
+                    if (resultShown) {
+                        resultShown = false
+                        binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                        binding.delBtn.text = "DEL"
+                    }
+
                     if (isLastCharOperator()) {
                         expression = expression.dropLast(1) + op
                     } else {
@@ -99,11 +151,23 @@ class scientific : AppCompatActivity() {
 
         // Brackets
         binding.openBracket.setOnClickListener {
+            if (resultShown) {
+                expression = ""
+                binding.output.text = ""
+                resultShown = false
+                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.delBtn.text = "DEL"
+            }
             expression += "("
             updateExpression()
         }
 
         binding.closeBracket.setOnClickListener {
+            if (resultShown) {
+                resultShown = false
+                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.delBtn.text = "DEL"
+            }
             expression += ")"
             updateExpression()
         }
@@ -112,6 +176,13 @@ class scientific : AppCompatActivity() {
     private fun setupScientificFunctions() {
         // Trigonometric functions
         binding.sinBtn.setOnClickListener {
+            if (resultShown) {
+                expression = ""
+                binding.output.text = ""
+                resultShown = false
+                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.delBtn.text = "DEL"
+            }
             if (isInverse) {
                 expression += "asin("
                 isInverse = false
@@ -123,6 +194,13 @@ class scientific : AppCompatActivity() {
         }
 
         binding.cosBtn.setOnClickListener {
+            if (resultShown) {
+                expression = ""
+                binding.output.text = ""
+                resultShown = false
+                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.delBtn.text = "DEL"
+            }
             if (isInverse) {
                 expression += "acos("
                 isInverse = false
@@ -134,6 +212,13 @@ class scientific : AppCompatActivity() {
         }
 
         binding.tanBtn.setOnClickListener {
+            if (resultShown) {
+                expression = ""
+                binding.output.text = ""
+                resultShown = false
+                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.delBtn.text = "DEL"
+            }
             if (isInverse) {
                 expression += "atan("
                 isInverse = false
@@ -146,35 +231,75 @@ class scientific : AppCompatActivity() {
 
         // Logarithms
         binding.lnBtn.setOnClickListener {
+            if (resultShown) {
+                expression = ""
+                binding.output.text = ""
+                resultShown = false
+                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.delBtn.text = "DEL"
+            }
             expression += "ln("
             updateExpression()
         }
 
         binding.logBtn.setOnClickListener {
+            if (resultShown) {
+                expression = ""
+                binding.output.text = ""
+                resultShown = false
+                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.delBtn.text = "DEL"
+            }
             expression += "log("
             updateExpression()
         }
 
         // Square root
         binding.sqrtBtn.setOnClickListener {
+            if (resultShown) {
+                expression = ""
+                binding.output.text = ""
+                resultShown = false
+                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.delBtn.text = "DEL"
+            }
             expression += "√("
             updateExpression()
         }
 
         // Power
         binding.powBtn.setOnClickListener {
+            if (resultShown) {
+                resultShown = false
+                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.delBtn.text = "DEL"
+            }
             expression += "^"
             updateExpression()
         }
 
         // Constants
         binding.piBtn.setOnClickListener {
+            if (resultShown) {
+                expression = ""
+                binding.output.text = ""
+                resultShown = false
+                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.delBtn.text = "DEL"
+            }
             expression += "π"
             updateExpression()
             autoEvaluate()
         }
 
         binding.eBtn.setOnClickListener {
+            if (resultShown) {
+                expression = ""
+                binding.output.text = ""
+                resultShown = false
+                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.delBtn.text = "DEL"
+            }
             expression += "e"
             updateExpression()
             autoEvaluate()
@@ -184,26 +309,57 @@ class scientific : AppCompatActivity() {
     private fun setupSpecialFunctions() {
         // Modulo
         binding.modBtn.setOnClickListener {
+            if (resultShown) {
+                resultShown = false
+                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.delBtn.text = "DEL"
+            }
             expression += "%"
             updateExpression()
         }
 
         // Factorial
         binding.factorialBtn.setOnClickListener {
+            if (resultShown) {
+                resultShown = false
+                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.delBtn.text = "DEL"
+            }
             expression += "!"
             updateExpression()
             autoEvaluate()
         }
 
-        // Answer (Ans)
+        // Answer (Ans) - Fixed to prevent multiple consecutive additions
         binding.ansBtn.setOnClickListener {
-            expression += lastAnswer
-            updateExpression()
-            autoEvaluate()
+            // Check if the last added text was already "Ans" or lastAnswer
+            val lastAddedWasAns = expression.endsWith(lastAnswer) &&
+                    expression.length >= lastAnswer.length
+
+            if (!lastAddedWasAns) {
+                if (resultShown) {
+                    // If showing result, start fresh with the answer
+                    expression = lastAnswer
+                    resultShown = false
+                    binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                    binding.delBtn.text = "DEL"
+                } else {
+                    expression += lastAnswer
+                }
+                updateExpression()
+                autoEvaluate()
+            } else {
+                showToast("Answer already added")
+            }
         }
 
         // EXP (scientific notation)
         binding.expBtn.setOnClickListener {
+            if (resultShown) {
+                resultShown = false
+                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.delBtn.text = "DEL"
+            }
             expression += "E"
             updateExpression()
         }
@@ -325,35 +481,59 @@ class scientific : AppCompatActivity() {
         val builder = ExpressionBuilder(processedExpr)
             .function(object : net.objecthunter.exp4j.function.Function("sin", 1) {
                 override fun apply(args: DoubleArray): Double {
-                    return if (angleMode == "RAD") sin(args[0]) else sin(Math.toRadians(args[0]))
+                    return when (angleMode) {
+                        "RAD" -> sin(args[0])
+                        "DEG" -> sin(Math.toRadians(args[0]))
+                        else -> sin(args[0]) // NONE mode treats as radians by default
+                    }
                 }
             })
             .function(object : net.objecthunter.exp4j.function.Function("cos", 1) {
                 override fun apply(args: DoubleArray): Double {
-                    return if (angleMode == "RAD") cos(args[0]) else cos(Math.toRadians(args[0]))
+                    return when (angleMode) {
+                        "RAD" -> cos(args[0])
+                        "DEG" -> cos(Math.toRadians(args[0]))
+                        else -> cos(args[0])
+                    }
                 }
             })
             .function(object : net.objecthunter.exp4j.function.Function("tan", 1) {
                 override fun apply(args: DoubleArray): Double {
-                    return if (angleMode == "RAD") tan(args[0]) else tan(Math.toRadians(args[0]))
+                    return when (angleMode) {
+                        "RAD" -> tan(args[0])
+                        "DEG" -> tan(Math.toRadians(args[0]))
+                        else -> tan(args[0])
+                    }
                 }
             })
             .function(object : net.objecthunter.exp4j.function.Function("asin", 1) {
                 override fun apply(args: DoubleArray): Double {
                     val result = asin(args[0])
-                    return if (angleMode == "RAD") result else Math.toDegrees(result)
+                    return when (angleMode) {
+                        "RAD" -> result
+                        "DEG" -> Math.toDegrees(result)
+                        else -> result
+                    }
                 }
             })
             .function(object : net.objecthunter.exp4j.function.Function("acos", 1) {
                 override fun apply(args: DoubleArray): Double {
                     val result = acos(args[0])
-                    return if (angleMode == "RAD") result else Math.toDegrees(result)
+                    return when (angleMode) {
+                        "RAD" -> result
+                        "DEG" -> Math.toDegrees(result)
+                        else -> result
+                    }
                 }
             })
             .function(object : net.objecthunter.exp4j.function.Function("atan", 1) {
                 override fun apply(args: DoubleArray): Double {
                     val result = atan(args[0])
-                    return if (angleMode == "RAD") result else Math.toDegrees(result)
+                    return when (angleMode) {
+                        "RAD" -> result
+                        "DEG" -> Math.toDegrees(result)
+                        else -> result
+                    }
                 }
             })
             .function(object : net.objecthunter.exp4j.function.Function("ln", 1) {
