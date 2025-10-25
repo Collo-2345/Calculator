@@ -114,7 +114,7 @@ class scientific : AppCompatActivity() {
                 animateResult(result)
                 expression = result.toString()
                 justEvaluated = true
-                binding.delBtn.text = "CLR"
+                binding.delBtn.text = "CE"
             } catch (e: Exception) {
                 binding.output.text = "Error"
             }
@@ -122,11 +122,11 @@ class scientific : AppCompatActivity() {
 
         // Delete / CLR
         binding.delBtn.setOnClickListener {
-            if (binding.delBtn.text == "CLR") {
+            if (binding.delBtn.text == "CE") {
                 expression = ""
                 binding.expressiontxt.text = ""
                 binding.output.text = ""
-                binding.delBtn.text = "DEL"
+                binding.delBtn.text = "AC"
             } else {
                 if (expression.isNotEmpty()) {
                     expression = expression.dropLast(1)
