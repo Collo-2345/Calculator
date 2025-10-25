@@ -1,5 +1,6 @@
 package collotech.example.calculator
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.widget.HorizontalScrollView
@@ -50,21 +51,23 @@ class MainActivity : AppCompatActivity() {
             btn.setOnClickListener {
                 if (resultShown) {
                     expression = ""
-                    binding.output.setText("")
+                    binding.output.text = ""
                     resultShown = false
+                    // Reset text color back to black when starting new expression
+                    binding.expressiontxt.setTextColor(resources.getColor(android.R.color.black, null))
                     resetDelButton()
                 }
 
                 expression += btn.text.toString()
-                binding.expressiontxt.setText(expression)
+                binding.expressiontxt.text = expression
                 scrollToRight(R.id.expressionScrollView)
 
                 try {
                     val result = ExpressionBuilder(preprocessExpression(expression)).build().evaluate()
-                    binding.output.setText(formatResult(result))
+                    binding.output.text = formatResult(result)
                     scrollToRight(R.id.outputScrollView)
-                } catch (e: Exception) {
-                    binding.output.setText("")
+                } catch (_: Exception) {
+                    binding.output.text = ""
                 }
             }
         }
@@ -83,24 +86,24 @@ class MainActivity : AppCompatActivity() {
                 // Allow minus at the start for negative numbers
                 if (expression.isEmpty() && operator == "-") {
                     expression = operator
-                    binding.expressiontxt.setText(expression)
+                    binding.expressiontxt.text = expression
                     scrollToRight(R.id.expressionScrollView)
                     return@setOnClickListener
                 }
 
-                // Allow minus after an operator for negative numbers (e.g., "5+-2")
+                // If expression is not empty
                 if (expression.isNotEmpty()) {
-                    if (operator == "-" && isLastCharOperator() && expression.last() != '-') {
-                        resultShown = false
-                        resetDelButton()
-                        expression += operator
-                        binding.expressiontxt.setText(expression)
+                    // If last character is an operator, replace it with the new operator
+                    if (isLastCharOperator()) {
+                        expression = expression.dropLast(1) + operator
+                        binding.expressiontxt.text = expression
                         scrollToRight(R.id.expressionScrollView)
-                    } else if (!isLastCharOperator()) {
+                    } else {
+                        // Add operator normally
                         resultShown = false
                         resetDelButton()
                         expression += operator
-                        binding.expressiontxt.setText(expression)
+                        binding.expressiontxt.text = expression
                         scrollToRight(R.id.expressionScrollView)
                     }
                 }
@@ -108,6 +111,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setEqualAndDeleteListeners() {
         binding.equal.setOnClickListener {
             try {
@@ -120,9 +124,11 @@ class MainActivity : AppCompatActivity() {
                     .translationY(-50f)
                     .setDuration(250)
                     .withEndAction {
-                        binding.expressiontxt.setText(resultString)
+                        binding.expressiontxt.text = resultString
+                        // Change text color to green for the result
+                        binding.expressiontxt.setTextColor(resources.getColor(android.R.color.holo_green_dark, null))
                         scrollToRight(R.id.expressionScrollView)
-                        binding.output.setText("")
+                        binding.output.text = ""
                         binding.output.alpha = 1f
                         binding.output.translationY = 0f
                         expression = resultString
@@ -134,8 +140,8 @@ class MainActivity : AppCompatActivity() {
                     }
                     .start()
 
-            } catch (e: Exception) {
-                binding.output.setText("Error")
+            } catch (_: Exception) {
+                binding.output.text = "Error"
             }
         }
 
@@ -143,23 +149,23 @@ class MainActivity : AppCompatActivity() {
             if (isClearMode) {
                 // 🧹 Clear everything
                 expression = ""
-                binding.expressiontxt.setText("")
-                binding.output.setText("")
+                binding.expressiontxt.text = ""
+                binding.output.text = ""
                 resultShown = false
                 resetDelButton()
             } else {
                 //  Normal DEL behavior
                 if (expression.isNotEmpty()) {
                     expression = expression.dropLast(1)
-                    binding.expressiontxt.setText(expression)
+                    binding.expressiontxt.text = expression
                     scrollToRight(R.id.expressionScrollView)
 
                     try {
                         val result = ExpressionBuilder(preprocessExpression(expression)).build().evaluate()
-                        binding.output.setText(formatResult(result))
+                        binding.output.text = formatResult(result)
                         scrollToRight(R.id.outputScrollView)
-                    } catch (e: Exception) {
-                        binding.output.setText("")
+                    } catch (_: Exception) {
+                        binding.output.text = ""
                     }
                 }
             }
@@ -167,6 +173,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Restore DEL button state
+    @SuppressLint("SetTextI18n")
     private fun resetDelButton() {
         binding.del.text = "DEL"
         isClearMode = false
@@ -189,11 +196,8 @@ class MainActivity : AppCompatActivity() {
             processed = "(0$processed)"
         }
 
-        // Handle negative numbers after operators: 5+-2 becomes 5+(0-2)
-        processed = processed.replace("+-", "+(0-")
-        processed = processed.replace("--", "-(0-")
-        processed = processed.replace("*-", "*(0-")
-        processed = processed.replace("/-", "/(0-")
+        // No need to handle +- or -- since we now replace operators
+        // The expression will always have single operators between numbers
 
         return processed
     }
