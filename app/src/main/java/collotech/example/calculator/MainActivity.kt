@@ -1,11 +1,16 @@
 package collotech.example.calculator
 
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.HorizontalScrollView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import collotech.example.calculator.databinding.ActivityMainBinding
 import net.objecthunter.exp4j.ExpressionBuilder
 import android.widget.ImageView
@@ -24,20 +29,54 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Set text colors explicitly to ensure visibility
-        binding.expressiontxt.setTextColor(resources.getColor(android.R.color.black, null))
-        binding.output.setTextColor(resources.getColor(android.R.color.black, null))
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val sysBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(sysBars.left, sysBars.top, sysBars.right, sysBars.bottom)
+            insets
+        }
+
+        // Set text colors for the modern dark theme
+        binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+        binding.output.setTextColor(resources.getColor(android.R.color.white, null))
 
         setNumberClickListeners()
         setOperatorClickListeners()
         setEqualAndDeleteListeners()
 
+        // Setup navigation arrow with animation
         val arrow = findViewById<ImageView>(R.id.arrow)
+        startArrowPulseAnimation(arrow)
 
         arrow.setOnClickListener {
             val intent = Intent(this, scientific::class.java)
             startActivity(intent)
+            // Add transition animation
+            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
         }
+    }
+
+    // Pulsing animation for the navigation arrow
+    private fun startArrowPulseAnimation(arrow: ImageView) {
+        // Scale animation (pulse effect)
+        val scaleX = ObjectAnimator.ofFloat(arrow, "scaleX", 1f, 1.2f, 1f)
+        val scaleY = ObjectAnimator.ofFloat(arrow, "scaleY", 1f, 1.2f, 1f)
+
+        scaleX.duration = 1500
+        scaleY.duration = 1500
+        scaleX.repeatCount = ValueAnimator.INFINITE
+        scaleY.repeatCount = ValueAnimator.INFINITE
+        scaleX.interpolator = AccelerateDecelerateInterpolator()
+        scaleY.interpolator = AccelerateDecelerateInterpolator()
+
+        scaleX.start()
+        scaleY.start()
+
+        // Rotation animation (slight rotation)
+        val rotation = ObjectAnimator.ofFloat(arrow, "rotation", 0f, 10f, 0f, -10f, 0f)
+        rotation.duration = 2000
+        rotation.repeatCount = ValueAnimator.INFINITE
+        rotation.interpolator = AccelerateDecelerateInterpolator()
+        rotation.start()
     }
 
     private fun setNumberClickListeners() {
@@ -53,8 +92,8 @@ class MainActivity : AppCompatActivity() {
                     expression = ""
                     binding.output.text = ""
                     resultShown = false
-                    // Reset text color back to black when starting new expression
-                    binding.expressiontxt.setTextColor(resources.getColor(android.R.color.black, null))
+                    // Reset text color back to white when starting new expression
+                    binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
                     resetDelButton()
                 }
 
@@ -64,8 +103,10 @@ class MainActivity : AppCompatActivity() {
 
                 try {
                     val result = ExpressionBuilder(preprocessExpression(expression)).build().evaluate()
-                    binding.output.text = formatResult(result)
-                    scrollToRight(R.id.outputScrollView)
+                    if (!result.isNaN() && !result.isInfinite()) {
+                        binding.output.text = formatResult(result)
+                        scrollToRight(R.id.outputScrollView)
+                    }
                 } catch (_: Exception) {
                     binding.output.text = ""
                 }
@@ -74,15 +115,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setOperatorClickListeners() {
-        val operatorButtons = listOf(
-            binding.addition, binding.subtract,
-            binding.multiple, binding.divide
+        // Map TextView operators to actual math operators
+        val operatorMap = mapOf(
+            binding.addition to "+",
+            binding.subtract to "-",
+            binding.multiple to "*",
+            binding.divide to "/"
         )
 
-        operatorButtons.forEach { btn ->
+        operatorMap.forEach { (btn, operator) ->
             btn.setOnClickListener {
-                val operator = btn.text.toString()
-
                 // Allow minus at the start for negative numbers
                 if (expression.isEmpty() && operator == "-") {
                     expression = operator
@@ -93,19 +135,22 @@ class MainActivity : AppCompatActivity() {
 
                 // If expression is not empty
                 if (expression.isNotEmpty()) {
+                    // If result was shown, continue with result
+                    if (resultShown) {
+                        resultShown = false
+                        binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                        resetDelButton()
+                    }
+
                     // If last character is an operator, replace it with the new operator
                     if (isLastCharOperator()) {
                         expression = expression.dropLast(1) + operator
-                        binding.expressiontxt.text = expression
-                        scrollToRight(R.id.expressionScrollView)
                     } else {
-                        // Add operator normally
-                        resultShown = false
-                        resetDelButton()
                         expression += operator
-                        binding.expressiontxt.text = expression
-                        scrollToRight(R.id.expressionScrollView)
                     }
+
+                    binding.expressiontxt.text = expression
+                    scrollToRight(R.id.expressionScrollView)
                 }
             }
         }
@@ -116,54 +161,70 @@ class MainActivity : AppCompatActivity() {
         binding.equal.setOnClickListener {
             try {
                 val result = ExpressionBuilder(preprocessExpression(expression)).build().evaluate()
-                val resultString = formatResult(result)
 
-                // Animate result upward
-                binding.output.animate()
-                    .alpha(0f)
-                    .translationY(-50f)
-                    .setDuration(250)
-                    .withEndAction {
-                        binding.expressiontxt.text = resultString
-                        // Change text color to green for the result
-                        binding.expressiontxt.setTextColor(resources.getColor(android.R.color.holo_green_dark, null))
-                        scrollToRight(R.id.expressionScrollView)
-                        binding.output.text = ""
-                        binding.output.alpha = 1f
-                        binding.output.translationY = 0f
-                        expression = resultString
-                        resultShown = true
+                if (result.isInfinite()) {
+                    binding.output.text = "∞"
+                    showToast("Cannot divide by zero")
+                } else if (result.isNaN()) {
+                    binding.output.text = "Error"
+                    showToast("Invalid expression")
+                } else {
+                    val resultString = formatResult(result)
 
-                        // Change DEL to CLR after showing result
-                        binding.del.text = "CLR"
-                        isClearMode = true
-                    }
-                    .start()
+                    // Animate result upward
+                    binding.output.animate()
+                        .alpha(0f)
+                        .translationY(-50f)
+                        .setDuration(250)
+                        .withEndAction {
+                            binding.expressiontxt.text = resultString
+                            // Change text color to green for the result
+                            binding.expressiontxt.setTextColor(resources.getColor(android.R.color.holo_green_dark, null))
+                            scrollToRight(R.id.expressionScrollView)
+                            binding.output.text = ""
+                            binding.output.alpha = 1f
+                            binding.output.translationY = 0f
+                            expression = resultString
+                            resultShown = true
 
-            } catch (_: Exception) {
+                            // Change DEL to CLR after showing result
+                            binding.del.text = "CLR"
+                            isClearMode = true
+                        }
+                        .start()
+                }
+            } catch (e: Exception) {
                 binding.output.text = "Error"
+                showToast(e.message ?: "Invalid expression")
             }
         }
 
         binding.del.setOnClickListener {
             if (isClearMode) {
-                // 🧹 Clear everything
+                // Clear everything
                 expression = ""
                 binding.expressiontxt.text = ""
                 binding.output.text = ""
+                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
                 resultShown = false
                 resetDelButton()
             } else {
-                //  Normal DEL behavior
+                // Normal DEL behavior
                 if (expression.isNotEmpty()) {
                     expression = expression.dropLast(1)
                     binding.expressiontxt.text = expression
                     scrollToRight(R.id.expressionScrollView)
 
                     try {
-                        val result = ExpressionBuilder(preprocessExpression(expression)).build().evaluate()
-                        binding.output.text = formatResult(result)
-                        scrollToRight(R.id.outputScrollView)
+                        if (expression.isNotEmpty() && !isLastCharOperator()) {
+                            val result = ExpressionBuilder(preprocessExpression(expression)).build().evaluate()
+                            if (!result.isNaN() && !result.isInfinite()) {
+                                binding.output.text = formatResult(result)
+                                scrollToRight(R.id.outputScrollView)
+                            }
+                        } else {
+                            binding.output.text = ""
+                        }
                     } catch (_: Exception) {
                         binding.output.text = ""
                     }
@@ -182,7 +243,7 @@ class MainActivity : AppCompatActivity() {
     private fun isLastCharOperator(): Boolean {
         if (expression.isEmpty()) return false
         val lastChar = expression.last()
-        return lastChar == '+' || lastChar == '-' || lastChar == '*' || lastChar == '/'
+        return lastChar in listOf('+', '-', '*', '/')
     }
 
     // Preprocess expression to handle negative numbers properly
@@ -196,18 +257,23 @@ class MainActivity : AppCompatActivity() {
             processed = "(0$processed)"
         }
 
-        // No need to handle +- or -- since we now replace operators
-        // The expression will always have single operators between numbers
-
         return processed
     }
 
     // Format result to remove unnecessary decimal zeros
     private fun formatResult(result: Double): String {
-        return if (result == result.toLong().toDouble()) {
-            result.toLong().toString()
-        } else {
-            result.toString()
+        return when {
+            result == result.toLong().toDouble() -> result.toLong().toString()
+            kotlin.math.abs(result) < 0.000001 -> String.format("%.10f", result).trimEnd('0').trimEnd('.')
+            kotlin.math.abs(result) > 1E10 -> String.format("%.4E", result)
+            else -> {
+                val formatted = String.format("%.10f", result).trimEnd('0').trimEnd('.')
+                if (formatted.length > 15) {
+                    String.format("%.6f", result).trimEnd('0').trimEnd('.')
+                } else {
+                    formatted
+                }
+            }
         }
     }
 
@@ -217,5 +283,9 @@ class MainActivity : AppCompatActivity() {
         scrollView?.postDelayed({
             scrollView.fullScroll(android.view.View.FOCUS_RIGHT)
         }, 100)
+    }
+
+    private fun showToast(message: String) {
+        android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_SHORT).show()
     }
 }

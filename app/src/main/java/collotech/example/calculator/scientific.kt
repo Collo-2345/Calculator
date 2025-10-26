@@ -1,6 +1,7 @@
 package collotech.example.calculator
 
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.widget.HorizontalScrollView
@@ -37,6 +38,30 @@ class scientific : AppCompatActivity() {
         updateModeDisplay()
 
         setupListeners()
+
+        // Start back button animation
+        startBackButtonAnimation()
+    }
+
+    private fun startBackButtonAnimation() {
+        // Color splash animation - rainbow colors cycling (only text color)
+        val colorAnimation = ValueAnimator.ofArgb(
+            0xFF4A90E2.toInt(), // Blue
+            0xFF50C878.toInt(), // Green
+            0xFFFFAA00.toInt(), // Orange
+            0xFFFF6B6B.toInt(), // Red
+            0xFFAA66CC.toInt(), // Purple
+            0xFFFF1493.toInt(), // Deep Pink
+            0xFF4A90E2.toInt()  // Back to Blue
+        )
+        colorAnimation.duration = 4000
+        colorAnimation.repeatCount = ValueAnimator.INFINITE
+        colorAnimation.addUpdateListener { animator ->
+            binding.backBtn.setTextColor(animator.animatedValue as Int)
+        }
+
+        // Start color animation
+        colorAnimation.start()
     }
 
     @SuppressLint("SetTextI18n")
@@ -75,9 +100,11 @@ class scientific : AppCompatActivity() {
         // Special functions
         setupSpecialFunctions()
 
-        // Back to main calculator
+        // Back to main calculator with smooth transition
         binding.backBtn.setOnClickListener {
             finish()
+            // Add smooth slide transition animation
+            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
         }
 
         // Mode toggle (RAD/DEG)
@@ -282,6 +309,7 @@ class scientific : AppCompatActivity() {
             expression += "^"
             updateExpression()
         }
+
         // Square (X²)
         binding.squareBtn.setOnClickListener {
             if (resultShown) {
