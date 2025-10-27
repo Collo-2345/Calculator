@@ -101,17 +101,37 @@ class MainActivity : AppCompatActivity() {
                 binding.expressionText.text = expression
                 scrollToRight(R.id.expressionScrollView)
 
-                try {
-                    val result = ExpressionBuilder(preprocessExpression(expression)).build().evaluate()
-                    if (!result.isNaN() && !result.isInfinite()) {
-                        binding.output.text = formatResult(result)
-                        scrollToRight(R.id.outputScrollView)
-                    }
-                } catch (_: Exception) {
-                    binding.output.text = ""
-                }
+                // Auto-evaluate with smart output display
+                autoEvaluate()
             }
         }
+    }
+
+    private fun autoEvaluate() {
+        try {
+            // Only show output if expression has operators (is complete)
+            if (expression.isNotEmpty() && !isLastCharOperator() && hasOperator()) {
+                val result = ExpressionBuilder(preprocessExpression(expression)).build().evaluate()
+                if (!result.isNaN() && !result.isInfinite()) {
+                    binding.output.text = formatResult(result)
+                    scrollToRight(R.id.outputScrollView)
+                } else {
+                    binding.output.text = ""
+                }
+            } else {
+                // Expression is incomplete (just numbers) or ends with operator
+                binding.output.text = ""
+            }
+        } catch (_: Exception) {
+            binding.output.text = ""
+        }
+    }
+
+    private fun hasOperator(): Boolean {
+        // Check if expression contains at least one operator
+        return expression.contains(Regex("[+\\-*/]")) &&
+                expression.length > 1 && // Must be more than just operator
+                !expression.matches(Regex("^-?\\d*\\.?\\d*$")) // Not just a single number
     }
 
     private fun setOperatorClickListeners() {
@@ -151,6 +171,9 @@ class MainActivity : AppCompatActivity() {
 
                     binding.expressionText.text = expression
                     scrollToRight(R.id.expressionScrollView)
+
+                    // Clear output when operator is added
+                    binding.output.text = ""
                 }
             }
         }
@@ -215,19 +238,11 @@ class MainActivity : AppCompatActivity() {
                     binding.expressionText.text = expression
                     scrollToRight(R.id.expressionScrollView)
 
-                    try {
-                        if (expression.isNotEmpty() && !isLastCharOperator()) {
-                            val result = ExpressionBuilder(preprocessExpression(expression)).build().evaluate()
-                            if (!result.isNaN() && !result.isInfinite()) {
-                                binding.output.text = formatResult(result)
-                                scrollToRight(R.id.outputScrollView)
-                            }
-                        } else {
-                            binding.output.text = ""
-                        }
-                    } catch (_: Exception) {
-                        binding.output.text = ""
-                    }
+                    // Auto-evaluate with smart output
+                    autoEvaluate()
+                } else {
+                    // If expression is empty, also clear output
+                    binding.output.text = ""
                 }
             }
         }

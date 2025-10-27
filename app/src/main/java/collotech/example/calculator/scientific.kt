@@ -1,9 +1,11 @@
 package collotech.example.calculator
 
 
+import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.HorizontalScrollView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -492,15 +494,68 @@ class scientific : AppCompatActivity() {
     private fun autoEvaluate() {
         try {
             if (expression.isNotEmpty() && !isLastCharOperator()) {
-                val result = evaluateExpression(expression)
-                if (!result.isNaN() && !result.isInfinite()) {
-                    binding.output.text = formatResult(result)
-                    scrollToRight(R.id.outputScrollView)
+                // Auto-complete unclosed brackets for preview
+                val completedExpression = autoCompleteBrackets(expression)
+
+                // Check if expression is complete enough to evaluate
+                if (isEvaluableExpression(completedExpression)) {
+                    val result = evaluateExpression(completedExpression)
+                    if (!result.isNaN() && !result.isInfinite()) {
+                        binding.output.text = formatResult(result)
+                        scrollToRight(R.id.outputScrollView)
+                    } else {
+                        binding.output.text = ""
+                    }
+                } else {
+                    // Expression is incomplete or invalid, clear output
+                    binding.output.text = ""
                 }
+            } else {
+                // Last char is operator or expression is empty, clear output
+                binding.output.text = ""
             }
         } catch (_: Exception) {
             binding.output.text = ""
         }
+    }
+
+    private fun autoCompleteBrackets(expr: String): String {
+        var result = expr
+        var openCount = 0
+        var closeCount = 0
+
+        // Count open and close brackets
+        for (char in expr) {
+            when (char) {
+                '(' -> openCount++
+                ')' -> closeCount++
+            }
+        }
+
+        // Add missing closing brackets
+        val missingBrackets = openCount - closeCount
+        if (missingBrackets > 0) {
+            result += ")".repeat(missingBrackets)
+        }
+
+        return result
+    }
+
+    private fun isEvaluableExpression(expr: String): Boolean {
+        // Check if expression is just a single number
+        val numberPattern = "^-?\\d+(\\.\\d+)?$".toRegex()
+        if (numberPattern.matches(expr)) {
+            return false // Don't show single numbers in output
+        }
+
+        // Check if expression contains at least one operator or function
+        val hasOperator = expr.contains(Regex("[+\\-*/^%]"))
+        val hasFunction = expr.contains(Regex("(sin|cos|tan|asin|acos|atan|ln|log|sqrt)\\("))
+        val hasConstant = expr.contains("π") || expr.contains("e")
+        val hasFactorial = expr.contains("!")
+
+        // Expression is evaluable if it has operators, functions, constants, or factorials
+        return hasOperator || hasFunction || hasConstant || hasFactorial
     }
 
     private fun evaluateExpression(expr: String): Double {
