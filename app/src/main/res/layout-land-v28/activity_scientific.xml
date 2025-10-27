@@ -55,8 +55,8 @@
                 android:padding="8dp"
                 android:text="@string/mode"
                 android:textColor="#4CAF50"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textFontWeight="500"
+                android:textSize="16sp" />
         </LinearLayout>
 
         <!-- Display Area -->
@@ -88,8 +88,8 @@
                     android:padding="4dp"
                     android:text=""
                     android:textColor="#DCDBDB"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textFontWeight="400"
+                    android:textSize="20sp" />
             </HorizontalScrollView>
 
             <!-- Output Display with HorizontalScrollView -->
@@ -109,8 +109,8 @@
                     android:padding="4dp"
                     android:text=""
                     android:textColor="#4CAF50"
-                    android:textSize="30sp"
-                    android:textStyle="normal" />
+                    android:textFontWeight="400"
+                    android:textSize="32sp" />
             </HorizontalScrollView>
         </LinearLayout>
 

@@ -79,7 +79,7 @@ class scientific : AppCompatActivity() {
                     expression = ""
                     binding.output.text = ""
                     resultShown = false
-                    binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                    binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                     binding.delBtn.text = "DEL"
                 }
                 expression += btn.text.toString()
@@ -166,7 +166,7 @@ class scientific : AppCompatActivity() {
                     // Allow continuing with result after equals
                     if (resultShown) {
                         resultShown = false
-                        binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                        binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                         binding.delBtn.text = "DEL"
                     }
 
@@ -186,7 +186,7 @@ class scientific : AppCompatActivity() {
                 expression = ""
                 binding.output.text = ""
                 resultShown = false
-                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 binding.delBtn.text = "DEL"
             }
             expression += "("
@@ -196,7 +196,7 @@ class scientific : AppCompatActivity() {
         binding.closeBracket.setOnClickListener {
             if (resultShown) {
                 resultShown = false
-                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 binding.delBtn.text = "DEL"
             }
             expression += ")"
@@ -212,7 +212,7 @@ class scientific : AppCompatActivity() {
                 expression = ""
                 binding.output.text = ""
                 resultShown = false
-                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 binding.delBtn.text = "DEL"
             }
             if (isInverse) {
@@ -230,7 +230,7 @@ class scientific : AppCompatActivity() {
                 expression = ""
                 binding.output.text = ""
                 resultShown = false
-                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 binding.delBtn.text = "DEL"
             }
             if (isInverse) {
@@ -248,7 +248,7 @@ class scientific : AppCompatActivity() {
                 expression = ""
                 binding.output.text = ""
                 resultShown = false
-                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 binding.delBtn.text = "DEL"
             }
             if (isInverse) {
@@ -267,7 +267,7 @@ class scientific : AppCompatActivity() {
                 expression = ""
                 binding.output.text = ""
                 resultShown = false
-                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 binding.delBtn.text = "DEL"
             }
             expression += "ln("
@@ -279,7 +279,7 @@ class scientific : AppCompatActivity() {
                 expression = ""
                 binding.output.text = ""
                 resultShown = false
-                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 binding.delBtn.text = "DEL"
             }
             expression += "log("
@@ -292,7 +292,7 @@ class scientific : AppCompatActivity() {
                 expression = ""
                 binding.output.text = ""
                 resultShown = false
-                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 binding.delBtn.text = "DEL"
             }
             expression += "√("
@@ -303,7 +303,7 @@ class scientific : AppCompatActivity() {
         binding.powBtn.setOnClickListener {
             if (resultShown) {
                 resultShown = false
-                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 binding.delBtn.text = "DEL"
             }
             expression += "^"
@@ -314,7 +314,7 @@ class scientific : AppCompatActivity() {
         binding.squareBtn.setOnClickListener {
             if (resultShown) {
                 resultShown = false
-                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 binding.delBtn.text = "DEL"
             }
             expression += "^2"
@@ -328,7 +328,7 @@ class scientific : AppCompatActivity() {
                 expression = ""
                 binding.output.text = ""
                 resultShown = false
-                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 binding.delBtn.text = "DEL"
             }
             expression += "π"
@@ -341,7 +341,7 @@ class scientific : AppCompatActivity() {
                 expression = ""
                 binding.output.text = ""
                 resultShown = false
-                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 binding.delBtn.text = "DEL"
             }
             expression += "e"
@@ -356,7 +356,7 @@ class scientific : AppCompatActivity() {
         binding.modBtn.setOnClickListener {
             if (resultShown) {
                 resultShown = false
-                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 binding.delBtn.text = "DEL"
             }
             expression += "%"
@@ -367,7 +367,7 @@ class scientific : AppCompatActivity() {
         binding.factorialBtn.setOnClickListener {
             if (resultShown) {
                 resultShown = false
-                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 binding.delBtn.text = "DEL"
             }
             expression += "!"
@@ -386,7 +386,7 @@ class scientific : AppCompatActivity() {
                     // If showing result, start fresh with the answer
                     expression = lastAnswer
                     resultShown = false
-                    binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                    binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                     binding.delBtn.text = "DEL"
                 } else {
                     expression += lastAnswer
@@ -402,7 +402,7 @@ class scientific : AppCompatActivity() {
         binding.expBtn.setOnClickListener {
             if (resultShown) {
                 resultShown = false
-                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 binding.delBtn.text = "DEL"
             }
             expression += "E"
@@ -445,8 +445,8 @@ class scientific : AppCompatActivity() {
                         .translationY(-50f)
                         .setDuration(250)
                         .withEndAction {
-                            binding.expressiontxt.text = resultString
-                            binding.expressiontxt.setTextColor(resources.getColor(android.R.color.holo_green_dark, null))
+                            binding.expressionText.text = resultString
+                            binding.expressionText.setTextColor(resources.getColor(android.R.color.holo_green_dark, null))
                             scrollToRight(R.id.expressionScrollView)
                             binding.output.text = ""
                             binding.output.alpha = 1f
@@ -468,9 +468,9 @@ class scientific : AppCompatActivity() {
             if (binding.delBtn.text == "AC") {
                 // Clear everything
                 expression = ""
-                binding.expressiontxt.text = ""
+                binding.expressionText.text = ""
                 binding.output.text = ""
-                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 resultShown = false
                 binding.delBtn.text = "DEL"
             } else {
@@ -485,7 +485,7 @@ class scientific : AppCompatActivity() {
     }
 
     private fun updateExpression() {
-        binding.expressiontxt.text = expression
+        binding.expressionText.text = expression
         scrollToRight(R.id.expressionScrollView)
     }
 

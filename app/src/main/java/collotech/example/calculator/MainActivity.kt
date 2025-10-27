@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Set text colors for the modern dark theme
-        binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+        binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
         binding.output.setTextColor(resources.getColor(android.R.color.white, null))
 
         setNumberClickListeners()
@@ -93,12 +93,12 @@ class MainActivity : AppCompatActivity() {
                     binding.output.text = ""
                     resultShown = false
                     // Reset text color back to white when starting new expression
-                    binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                    binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                     resetDelButton()
                 }
 
                 expression += btn.text.toString()
-                binding.expressiontxt.text = expression
+                binding.expressionText.text = expression
                 scrollToRight(R.id.expressionScrollView)
 
                 try {
@@ -128,7 +128,7 @@ class MainActivity : AppCompatActivity() {
                 // Allow minus at the start for negative numbers
                 if (expression.isEmpty() && operator == "-") {
                     expression = operator
-                    binding.expressiontxt.text = expression
+                    binding.expressionText.text = expression
                     scrollToRight(R.id.expressionScrollView)
                     return@setOnClickListener
                 }
@@ -138,7 +138,7 @@ class MainActivity : AppCompatActivity() {
                     // If result was shown, continue with result
                     if (resultShown) {
                         resultShown = false
-                        binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                        binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                         resetDelButton()
                     }
 
@@ -149,7 +149,7 @@ class MainActivity : AppCompatActivity() {
                         expression += operator
                     }
 
-                    binding.expressiontxt.text = expression
+                    binding.expressionText.text = expression
                     scrollToRight(R.id.expressionScrollView)
                 }
             }
@@ -177,9 +177,9 @@ class MainActivity : AppCompatActivity() {
                         .translationY(-50f)
                         .setDuration(250)
                         .withEndAction {
-                            binding.expressiontxt.text = resultString
+                            binding.expressionText.text = resultString
                             // Change text color to green for the result
-                            binding.expressiontxt.setTextColor(resources.getColor(android.R.color.holo_green_dark, null))
+                            binding.expressionText.setTextColor(resources.getColor(android.R.color.holo_green_dark, null))
                             scrollToRight(R.id.expressionScrollView)
                             binding.output.text = ""
                             binding.output.alpha = 1f
@@ -203,16 +203,16 @@ class MainActivity : AppCompatActivity() {
             if (isClearMode) {
                 // Clear everything
                 expression = ""
-                binding.expressiontxt.text = ""
+                binding.expressionText.text = ""
                 binding.output.text = ""
-                binding.expressiontxt.setTextColor(resources.getColor(android.R.color.white, null))
+                binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 resultShown = false
                 resetDelButton()
             } else {
                 // Normal DEL behavior
                 if (expression.isNotEmpty()) {
                     expression = expression.dropLast(1)
-                    binding.expressiontxt.text = expression
+                    binding.expressionText.text = expression
                     scrollToRight(R.id.expressionScrollView)
 
                     try {
@@ -261,6 +261,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Format result to remove unnecessary decimal zeros
+    @SuppressLint("DefaultLocale")
     private fun formatResult(result: Double): String {
         return when {
             result == result.toLong().toDouble() -> result.toLong().toString()

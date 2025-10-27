@@ -3,6 +3,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#FF949494</color>
-    <color name="bluished1">#3FDCAD</color>
-    <color name="bluished">#2196F3</color>
+    <color name="blue">#3FDCAD</color>
+    <color name="bluish">#2196F3</color>
 </resources>

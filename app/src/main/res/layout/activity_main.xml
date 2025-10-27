@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
-    android:background="#000000"
+    android:background="@color/bluish"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
@@ -12,6 +12,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="2dp"
         android:background="@drawable/display_bg"
         android:orientation="vertical"
         android:padding="16dp"
@@ -28,7 +29,6 @@
                 android:id="@+id/linearLayout4"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -41,7 +41,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
-                        android:text="Basic Calculator"
+                        android:text="@string/basic_calc"
                         android:textColor="#FFFFFF"
                         android:textSize="18sp"
                         android:textStyle="bold"
@@ -55,10 +55,6 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
                 android:background="@drawable/result_bg"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -75,6 +71,8 @@
                         android:id="@+id/expressionScrollView"
                         android:layout_width="match_parent"
                         android:layout_height="80dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
                         android:fillViewport="true"
                         android:scrollbars="none"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -82,17 +80,17 @@
                         app:layout_constraintTop_toTopOf="parent">
 
                         <TextView
-                            android:id="@+id/expressiontxt"
-                            android:layout_width="match_parent"
+                            android:id="@+id/expressionText"
+                            android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:fontFamily="sans-serif-light"
                             android:gravity="center_vertical|end"
                             android:paddingStart="16dp"
                             android:paddingTop="0dp"
                             android:paddingEnd="16dp"
-                            android:text="0"
-                            android:textFontWeight="300"
+                            android:text=""
                             android:textColor="#FFFFFF"
+                            android:textStyle="bold"
                             android:textSize="29sp" />
                     </HorizontalScrollView>
 
@@ -101,7 +99,9 @@
                         android:id="@+id/outputScrollView"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
+                        android:layout_marginStart="4dp"
                         android:layout_marginTop="4dp"
+                        android:layout_marginEnd="4dp"
                         android:fillViewport="true"
                         android:scrollbars="none"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -118,9 +118,9 @@
                             android:paddingStart="16dp"
                             android:paddingTop="0dp"
                             android:paddingEnd="16dp"
-                            android:text="0"
+                            android:text=""
                             android:textColor="@color/white"
-                            android:textFontWeight="300"
+                            android:textStyle="bold"
                             android:textSize="34sp" />
                     </HorizontalScrollView>
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -184,12 +184,13 @@
                         android:layout_marginEnd="6dp"
                         android:background="@drawable/number_button_bg"
                         android:gravity="center"
-                        android:text="7"
+                        android:text="@string/_7"
                         android:textColor="#FFFFFF"
                         android:textSize="32sp"
                         android:fontFamily="sans-serif-light"
                         android:clickable="true"
-                        android:focusable="true" />
+                        android:focusable="true"
+                        tools:ignore="NestedWeights" />
 
                     <TextView
                         android:id="@+id/num8"
@@ -199,7 +200,7 @@
                         android:layout_marginEnd="6dp"
                         android:background="@drawable/number_button_bg"
                         android:gravity="center"
-                        android:text="8"
+                        android:text="@string/_8"
                         android:textColor="#FFFFFF"
                         android:textSize="32sp"
                         android:fontFamily="sans-serif-light"
@@ -213,7 +214,7 @@
                         android:layout_weight="1"
                         android:background="@drawable/number_button_bg"
                         android:gravity="center"
-                        android:text="9"
+                        android:text="@string/_9"
                         android:textColor="#FFFFFF"
                         android:textSize="32sp"
                         android:fontFamily="sans-serif-light"
@@ -237,12 +238,13 @@
                         android:layout_marginEnd="6dp"
                         android:background="@drawable/number_button_bg"
                         android:gravity="center"
-                        android:text="4"
+                        android:text="@string/_4"
                         android:textColor="#FFFFFF"
                         android:textSize="32sp"
                         android:fontFamily="sans-serif-light"
                         android:clickable="true"
-                        android:focusable="true" />
+                        android:focusable="true"
+                        tools:ignore="NestedWeights" />
 
                     <TextView
                         android:id="@+id/num5"
@@ -252,7 +254,7 @@
                         android:layout_marginEnd="6dp"
                         android:background="@drawable/number_button_bg"
                         android:gravity="center"
-                        android:text="5"
+                        android:text="@string/_5"
                         android:textColor="#FFFFFF"
                         android:textSize="32sp"
                         android:fontFamily="sans-serif-light"
@@ -266,7 +268,7 @@
                         android:layout_weight="1"
                         android:background="@drawable/number_button_bg"
                         android:gravity="center"
-                        android:text="6"
+                        android:text="@string/_6"
                         android:textColor="#FFFFFF"
                         android:textSize="32sp"
                         android:fontFamily="sans-serif-light"
@@ -290,12 +292,13 @@
                         android:layout_marginEnd="6dp"
                         android:background="@drawable/number_button_bg"
                         android:gravity="center"
-                        android:text="1"
+                        android:text="@string/_1"
                         android:textColor="#FFFFFF"
                         android:textSize="32sp"
                         android:fontFamily="sans-serif-light"
                         android:clickable="true"
-                        android:focusable="true" />
+                        android:focusable="true"
+                        tools:ignore="NestedWeights" />
 
                     <TextView
                         android:id="@+id/num2"
@@ -305,7 +308,7 @@
                         android:layout_marginEnd="6dp"
                         android:background="@drawable/number_button_bg"
                         android:gravity="center"
-                        android:text="2"
+                        android:text="@string/_2"
                         android:textColor="#FFFFFF"
                         android:textSize="32sp"
                         android:fontFamily="sans-serif-light"
@@ -319,7 +322,7 @@
                         android:layout_weight="1"
                         android:background="@drawable/number_button_bg"
                         android:gravity="center"
-                        android:text="3"
+                        android:text="@string/_3"
                         android:textColor="#FFFFFF"
                         android:textSize="32sp"
                         android:fontFamily="sans-serif-light"
@@ -342,12 +345,13 @@
                         android:layout_marginEnd="6dp"
                         android:background="@drawable/number_button_bg"
                         android:gravity="center"
-                        android:text="."
+                        android:text="@string/dot"
                         android:textColor="#FFFFFF"
                         android:textSize="32sp"
                         android:fontFamily="sans-serif-light"
                         android:clickable="true"
-                        android:focusable="true" />
+                        android:focusable="true"
+                        tools:ignore="NestedWeights" />
 
                     <TextView
                         android:id="@+id/num0"
@@ -357,7 +361,7 @@
                         android:layout_marginEnd="6dp"
                         android:background="@drawable/number_button_bg"
                         android:gravity="center"
-                        android:text="0"
+                        android:text="@string/_0"
                         android:textColor="#FFFFFF"
                         android:textSize="32sp"
                         android:fontFamily="sans-serif-light"
@@ -371,7 +375,7 @@
                         android:layout_weight="1"
                         android:background="@drawable/equal_button_bg"
                         android:gravity="center"
-                        android:text="="
+                        android:text="@string/equal"
                         android:textColor="#FFFFFF"
                         android:textSize="32sp"
                         android:fontFamily="sans-serif-medium"
@@ -410,7 +414,7 @@
                     android:layout_marginBottom="6dp"
                     android:background="@drawable/operator_special_bg"
                     android:gravity="center"
-                    android:text="DEL"
+                    android:text="@string/del"
                     android:textColor="#FF5252"
                     android:textSize="18sp"
                     android:fontFamily="sans-serif-medium"
@@ -426,7 +430,7 @@
                     android:layout_marginBottom="6dp"
                     android:background="@drawable/operator_button_bg"
                     android:gravity="center"
-                    android:text="÷"
+                    android:text="@string/div"
                     android:textColor="#4CAF50"
                     android:textSize="28sp"
                     android:fontFamily="sans-serif-light"
@@ -442,7 +446,7 @@
                     android:layout_marginBottom="6dp"
                     android:background="@drawable/operator_button_bg"
                     android:gravity="center"
-                    android:text="×"
+                    android:text="@string/multiply"
                     android:textColor="#4CAF50"
                     android:textSize="28sp"
                     android:fontFamily="sans-serif-light"
@@ -458,7 +462,7 @@
                     android:layout_marginBottom="6dp"
                     android:background="@drawable/operator_button_bg"
                     android:gravity="center"
-                    android:text="−"
+                    android:text="@string/subtr"
                     android:textColor="#4CAF50"
                     android:textSize="32sp"
                     android:fontFamily="sans-serif-light"
@@ -473,7 +477,7 @@
                     android:layout_weight="1"
                     android:background="@drawable/operator_button_bg"
                     android:gravity="center"
-                    android:text="+"
+                    android:text="@string/add"
                     android:textColor="#4CAF50"
                     android:textSize="28sp"
                     android:fontFamily="sans-serif-light"
@@ -510,27 +514,28 @@
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:src="@drawable/arrow"
-                        android:tint="#FFFFFF"
-                        android:contentDescription="Navigate to Scientific Calculator"
+                        android:contentDescription="@string/navigate_to_scientific_calculator"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="#FFFFFF" />
 
                     <!-- Pulsing indicator (optional text label) -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Sci"
+                        android:text="@string/sci"
                         android:textColor="#FFFFFF"
-                        android:textSize="10sp"
+                        android:textSize="12sp"
                         android:fontFamily="sans-serif-medium"
                         android:alpha="0.8"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/arrow"
-                        android:layout_marginTop="4dp" />
+                        android:layout_marginTop="4dp"
+                        tools:ignore="SmallSp" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
