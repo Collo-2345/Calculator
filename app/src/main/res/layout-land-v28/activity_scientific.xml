@@ -89,7 +89,7 @@
                     android:text=""
                     android:textColor="#DCDBDB"
                     android:textFontWeight="400"
-                    android:textSize="20sp" />
+                    android:textSize="24sp" />
             </HorizontalScrollView>
 
             <!-- Output Display with HorizontalScrollView -->

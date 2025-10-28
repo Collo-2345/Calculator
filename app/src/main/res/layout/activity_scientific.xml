@@ -106,11 +106,11 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:fontFamily="sans-serif-condensed"
-                        android:textStyle="bold"
+                        android:textStyle="normal"
                         android:padding="8dp"
                         android:text=""
                         android:textColor="#DCDBDB"
-                        android:textSize="26sp" />
+                        android:textSize="28sp" />
                 </HorizontalScrollView>
 
                 <!-- Output Display with HorizontalScrollView -->
