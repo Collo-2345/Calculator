@@ -263,7 +263,7 @@ class scientific : AppCompatActivity() {
             updateExpression()
         }
 
-        // Logarithms
+        // Logarithms with INVERSE support
         binding.lnBtn.setOnClickListener {
             if (resultShown) {
                 expression = ""
@@ -272,7 +272,14 @@ class scientific : AppCompatActivity() {
                 binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 binding.delBtn.text = "DEL"
             }
-            expression += "ln("
+            if (isInverse) {
+                // Inverse of ln is e^x
+                expression += "exp("
+                isInverse = false
+                binding.invBtn.alpha = 1.0f
+            } else {
+                expression += "ln("
+            }
             updateExpression()
         }
 
@@ -284,7 +291,14 @@ class scientific : AppCompatActivity() {
                 binding.expressionText.setTextColor(resources.getColor(android.R.color.white, null))
                 binding.delBtn.text = "DEL"
             }
-            expression += "log("
+            if (isInverse) {
+                // Inverse of log is 10^x
+                expression += "10^("
+                isInverse = false
+                binding.invBtn.alpha = 1.0f
+            } else {
+                expression += "log("
+            }
             updateExpression()
         }
 
@@ -299,6 +313,7 @@ class scientific : AppCompatActivity() {
             }
             expression += "√("
             updateExpression()
+            autoEvaluate() // Enable auto-complete for sqrt
         }
 
         // Power
@@ -400,7 +415,7 @@ class scientific : AppCompatActivity() {
             }
         }
 
-        // EXP (scientific notation)
+        // EXP (scientific notation) - FIXED to enable auto-evaluate
         binding.expBtn.setOnClickListener {
             if (resultShown) {
                 resultShown = false
@@ -409,6 +424,7 @@ class scientific : AppCompatActivity() {
             }
             expression += "E"
             updateExpression()
+            autoEvaluate() // Enable auto-evaluate for EXP
         }
 
         // Inverse toggle
@@ -426,10 +442,12 @@ class scientific : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun setupControlButtons() {
-        // Equal button
+        // Equal button - FIXED to auto-complete brackets
         binding.equal.setOnClickListener {
             try {
-                val result = evaluateExpression(expression)
+                // Auto-complete brackets before evaluation
+                val completedExpression = autoCompleteBrackets(expression)
+                val result = evaluateExpression(completedExpression)
 
                 if (result.isInfinite()) {
                     binding.output.text = "∞"
@@ -481,6 +499,9 @@ class scientific : AppCompatActivity() {
                     expression = expression.dropLast(1)
                     updateExpression()
                     autoEvaluate()
+                } else {
+                    // If expression is empty, also clear output
+                    binding.output.text = ""
                 }
             }
         }
@@ -550,12 +571,13 @@ class scientific : AppCompatActivity() {
 
         // Check if expression contains at least one operator or function
         val hasOperator = expr.contains(Regex("[+\\-*/^%]"))
-        val hasFunction = expr.contains(Regex("(sin|cos|tan|asin|acos|atan|ln|log|sqrt)\\("))
+        val hasFunction = expr.contains(Regex("(sin|cos|tan|asin|acos|atan|ln|log|sqrt|exp)\\("))
         val hasConstant = expr.contains("π") || expr.contains("e")
         val hasFactorial = expr.contains("!")
+        val hasScientificNotation = expr.contains("E")
 
         // Expression is evaluable if it has operators, functions, constants, or factorials
-        return hasOperator || hasFunction || hasConstant || hasFactorial
+        return hasOperator || hasFunction || hasConstant || hasFactorial || hasScientificNotation
     }
 
     private fun evaluateExpression(expr: String): Double {
@@ -566,9 +588,14 @@ class scientific : AppCompatActivity() {
             .replace("×", "*")
             .replace("÷", "/")
             .replace("π", PI.toString())
-            .replace("e", E.toString())
             .replace("√", "sqrt")
-            .replace("E", "*10^") // Scientific notation
+
+        // Handle scientific notation PROPERLY
+        // Replace E with *10^ but be careful with 'e' constant
+        processedExpr = processedExpr.replace(Regex("(\\d)E([+-]?\\d)"), "$1*10^($2)")
+
+        // Now replace 'e' constant
+        processedExpr = processedExpr.replace(Regex("(?<!\\d)e(?!xp)"), E.toString())
 
         // Handle factorial
         processedExpr = handleFactorial(processedExpr)
@@ -650,6 +677,11 @@ class scientific : AppCompatActivity() {
             .function(object : net.objecthunter.exp4j.function.Function("sqrt", 1) {
                 override fun apply(args: DoubleArray): Double {
                     return sqrt(args[0])
+                }
+            })
+            .function(object : net.objecthunter.exp4j.function.Function("exp", 1) {
+                override fun apply(args: DoubleArray): Double {
+                    return exp(args[0]) // e^x
                 }
             })
             .build()
