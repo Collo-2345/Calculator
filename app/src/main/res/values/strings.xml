@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Calculator</string>
+    <string name="app_name">Calculator Pro</string>
     <string name="scientific_calculator">Scientific Calculator</string>
     <string name="mode">Mode</string>
     <string name="basic_calc">← Basic Calc</string>
